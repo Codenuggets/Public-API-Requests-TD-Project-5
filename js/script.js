@@ -41,6 +41,78 @@ function formatDate(date) {
   return formatedDate;
 }
 
+function handlePrevClick(data, iterator) {
+    $('#modal-prev').click(() => {
+      console.log(iterator);
+      if(iterator <= 0) {
+        iterator = 0;
+      } else {
+        document.querySelector('.modal-container').innerHTML = `
+        <div class="modal">
+            <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+            <div class="modal-info-container">
+                <img class="modal-img" src="${data[iterator -1].picture.large}" alt="profile picture">
+                <h3 id="name" class="modal-name cap">${data[iterator -1].name.first} ${data[iterator -1].name.last}</h3>
+                <p class="modal-text">${data[iterator -1].email}</p>
+                <p class="modal-text cap">${data[iterator -1].location.city}</p>
+                <hr>
+                <p class="modal-text">${data[iterator -1].cell}</p>
+                <p class="modal-text cap">${data[iterator -1].location.street}, ${data[iterator -1].location.city}, ${data[iterator -1].location.state} ${data[iterator -1].location.postcode}</p>
+                <p class="modal-text">Birthday: ${formatDate(data[iterator -1].dob.date)}</p>
+            </div>
+          <div class="modal-btn-container">
+              <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+              <button type="button" id="modal-next" class="modal-next btn">Next</button>
+          </div>
+        `
+        iterator -= 1;
+      }
+      handleRemoveModal();
+      handleNextClick(data, iterator);
+      handlePrevClick(data, iterator);
+    });
+
+  };
+
+  function handleNextClick(data, iterator) {
+      $('#modal-next').click(() => {
+        console.log(iterator);
+        if(iterator >= 11) {
+          iterator = 11;
+        } else {
+          document.querySelector('.modal-container').innerHTML = `
+          <div class="modal">
+              <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+              <div class="modal-info-container">
+                  <img class="modal-img" src="${data[iterator +1].picture.large}" alt="profile picture">
+                  <h3 id="name" class="modal-name cap">${data[iterator +1].name.first} ${data[iterator +1].name.last}</h3>
+                  <p class="modal-text">${data[iterator +1].email}</p>
+                  <p class="modal-text cap">${data[iterator +1].location.city}</p>
+                  <hr>
+                  <p class="modal-text">${data[iterator +1].cell}</p>
+                  <p class="modal-text cap">${data[iterator +1].location.street}, ${data[iterator +1].location.city}, ${data[iterator +1].location.state} ${data[iterator +1].location.postcode}</p>
+                  <p class="modal-text">Birthday: ${formatDate(data[iterator +1].dob.date)}</p>
+              </div>
+            <div class="modal-btn-container">
+                <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+                <button type="button" id="modal-next" class="modal-next btn">Next</button>
+            </div>
+          `
+          iterator += 1;
+        }
+        handleRemoveModal();
+        handlePrevClick(data, iterator);
+        handleNextClick(data, (iterator));
+      });
+
+    };
+
+function handleRemoveModal() {
+  $('#modal-close-btn').click(() => {
+    $('.modal-container').remove();
+  });
+}
+
 function generateModal(data) {
   console.log(data);
   const employeeCards = document.querySelectorAll('.card');
@@ -62,13 +134,19 @@ function generateModal(data) {
                     <p class="modal-text cap">${data[i].location.street}, ${data[i].location.city}, ${data[i].location.state} ${data[i].location.postcode}</p>
                     <p class="modal-text">Birthday: ${formatDate(data[i].dob.date)}</p>
                 </div>
+              <div class="modal-btn-container">
+                  <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+                  <button type="button" id="modal-next" class="modal-next btn">Next</button>
+              </div>
             </div>
         `
       );
-      $('#modal-close-btn').click(() => {
-        $('.modal-container').remove();
+      handleRemoveModal();
+
+      handlePrevClick(data, i);
+
+      handleNextClick(data, i);
       });
-    });
   }
 }
 
