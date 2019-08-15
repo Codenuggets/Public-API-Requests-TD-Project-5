@@ -1,20 +1,25 @@
-
+// Assigns api url to variable
 const randomUrl = 'https://randomuser.me/api/?results=12&nat=us';
 const gallery = document.querySelector('#gallery');
 
+// Asynchronous function used for grabbing the employee data from randomuser.me
 async function getEmployees(url) {
   const employeeResponse = await fetch(url);
+  // grabs the data and converts to json
   const employeeJSON = await employeeResponse.json();
 
+  // iterates through the promise object and returns the iterable employee data
   return Promise.all(employeeJSON.results);
 }
 
+// generates the employee cards and displays them on the page
 function generateHTML(data) {
   console.log(data);
   data.map(employee => {
     const employeeCard = document.createElement('div');
     employeeCard.setAttribute('class', 'card');
     gallery.appendChild(employeeCard);
+    // Interpolation used to grab the information from data and insert them into the page
     employeeCard.innerHTML = `
       <div class="card-img-container">
         <img class="card-img" src="${employee.picture.large}" alt="profile picture">
@@ -26,56 +31,68 @@ function generateHTML(data) {
       </div>
     `;
   });
+  // data is returned for used in following .then() method calls
   return data;
 }
 
+// Creates and appends search bar code
 function generateSearch(data) {
   document.querySelector('.search-container').innerHTML =
     ` <form action="#" method="get">
-        <input type="search" id="search-input" class="search-input" placeholder="Search...">
-        <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+        <input type="search" id="search-input" placeholder="Search...">
+        <input type="submit" value="&#x1F50D;" id="search-submit">
       </form>`;
+  // data is returned for use in following .then() method calls
   return data;
 }
 
+// Adds functionality to search bar
 function handleSearch(data) {
-  console.log(data);
-  $('#search-input').keyup((e) =>{
+  // Click event added to search bar
+  $('#search-input').keyup((e) => {
+    // searchResults declared for use after loop is run
     let searchResults = [];
+    // Hides all cards so only the cards that match are shown
     $('.card').hide();
-
+    // .entries used to allow the index for use as reference in the loop
     for (let [index,employee] of data.entries()) {
+      // Both first and last names are concatenated so the user can search by either
       let fullName = employee.name.first.concat(` ${employee.name.last}`)
       if(fullName.includes(e.target.value.toLowerCase())) {
-        console.log(fullName);
+        // To ensure the no results message isn't displayed if there is a match
         $('#no-results').remove();
+        // :eq used to grab to corresponding card with it's postion in the index
         $(`.card:eq(${index})`).show();
+        // employee pushed into searchResults array for a check after loop is finished
         searchResults.push(employee);
-        console.log(searchResults);
-      } else if(searchResults.length === 0) {
-        console.log("I'm empty");
-
       }
     }
+    // Checks length of search results
     if(searchResults.length === 0) {
+      // Makes sure the no results message isn't already displayed
       if(document.querySelector('#no-results') === null ) {
+        // Creates and appends no results message
         $('#gallery').append('<div id="no-results">Sorry, no results found.</div>');
       }
     }
   });
 }
 
+// converts date from iso format to short date for use in generateModal
 function formatDate(date) {
   const convertedDate = new Date(date);
   const formatedDate = `${convertedDate.getMonth() +1}/${convertedDate.getDate()}/${convertedDate.getFullYear()}`;
   return formatedDate;
 }
 
+// Handles the functionality of the prev button in the modal
 function handlePrevClick(data, iterator) {
     $('#modal-prev').click(() => {
+      // Ensures that no error occurs if the user presses the prev button on the first card
       if(iterator <= 0) {
         iterator = 0;
       } else {
+        // code is reused from generateModal but adjusted to show previous card
         document.querySelector('.modal-container').innerHTML = `
         <div class="modal">
             <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
@@ -94,8 +111,10 @@ function handlePrevClick(data, iterator) {
               <button type="button" id="modal-next" class="modal-next btn">Next</button>
           </div>
         `
+        // iterator adjusted only if previous card is shown
         iterator -= 1;
       }
+      // button functionality is added to new card modal shown
       handleRemoveModal();
       handleNextClick(data, iterator);
       handlePrevClick(data, iterator);
@@ -103,12 +122,14 @@ function handlePrevClick(data, iterator) {
 
   };
 
-  function handleNextClick(data, iterator) {
+// adds functionality to next button in modal
+function handleNextClick(data, iterator) {
       $('#modal-next').click(() => {
-        console.log(iterator);
+        // ensures that no error occurs when the user presses next on last card
         if(iterator >= 11) {
           iterator = 11;
         } else {
+          // Reuses code from generateModal but adjusts for showing next card
           document.querySelector('.modal-container').innerHTML = `
           <div class="modal">
               <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
@@ -127,27 +148,37 @@ function handlePrevClick(data, iterator) {
                 <button type="button" id="modal-next" class="modal-next btn">Next</button>
             </div>
           `
+          // Adjusts iterator only if the next card is shown
           iterator += 1;
         }
+        // Adds button functionality to new card shown
         handleRemoveModal();
         handlePrevClick(data, iterator);
-        handleNextClick(data, (iterator));
+        handleNextClick(data, iterator);
       });
 
     };
 
+// adds functionality to close button on modal
 function handleRemoveModal() {
+  // Selects close button on modal and adds click event
   $('#modal-close-btn').click(() => {
-    $('.modal-container').remove();
+    //Added fading animation to modal to ease it going out for user
+    $('.modal-container').fadeOut(() => {
+      // Once fading animation is complete, the modal is removed
+      $('.modal-container').remove();
+    });
   });
 }
 
+// Handles the creation and appending of modal
 function generateModal(data) {
   const employeeCards = document.querySelectorAll('.card');
+  // Iterates through all data so that the index can be used and adds click event listener to each
   for(let i = 0; i < data.length; i++){
     employeeCards[i].addEventListener('click', (e) => {
-      console.log('that tickles');
       $('body').append(
+        // Interpolation used to grab information from data to display
         `
         <div class="modal-container">
             <div class="modal">
@@ -169,14 +200,18 @@ function generateModal(data) {
             </div>
         `
       );
+      // Adds button functionality to modal
       handleRemoveModal();
-
       handlePrevClick(data, i);
-
       handleNextClick(data, i);
       });
   }
+  // data returned for use in following .then() method calls
   return data;
 }
-
-getEmployees(randomUrl).then(generateHTML).then(generateModal).then(generateSearch).then(handleSearch);
+// Promise function calls to set up page
+getEmployees(randomUrl)
+  .then(generateHTML)
+  .then(generateModal)
+  .then(generateSearch)
+  .then(handleSearch);
