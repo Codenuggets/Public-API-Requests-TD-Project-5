@@ -1,11 +1,5 @@
-// $.ajax({
-//   url: 'https://randomuser.me/api/',
-//   dataType: 'json',
-//   success: function(data) {
-//     console.log(data);
-//   }
-// });
-const randomUrl = 'https://randomuser.me/api/?results=12';
+
+const randomUrl = 'https://randomuser.me/api/?results=12&nat=us';
 const gallery = document.querySelector('#gallery');
 
 async function getEmployees(url) {
@@ -35,6 +29,42 @@ function generateHTML(data) {
   return data;
 }
 
+function generateSearch(data) {
+  document.querySelector('.search-container').innerHTML =
+    ` <form action="#" method="get">
+        <input type="search" id="search-input" class="search-input" placeholder="Search...">
+        <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+      </form>`;
+  return data;
+}
+
+function handleSearch(data) {
+  console.log(data);
+  $('#search-input').keyup((e) =>{
+    let searchResults = [];
+    $('.card').hide();
+
+    for (let [index,employee] of data.entries()) {
+      let fullName = employee.name.first.concat(` ${employee.name.last}`)
+      if(fullName.includes(e.target.value.toLowerCase())) {
+        console.log(fullName);
+        $('#no-results').remove();
+        $(`.card:eq(${index})`).show();
+        searchResults.push(employee);
+        console.log(searchResults);
+      } else if(searchResults.length === 0) {
+        console.log("I'm empty");
+
+      }
+    }
+    if(searchResults.length === 0) {
+      if(document.querySelector('#no-results') === null ) {
+        $('#gallery').append('<div id="no-results">Sorry, no results found.</div>');
+      }
+    }
+  });
+}
+
 function formatDate(date) {
   const convertedDate = new Date(date);
   const formatedDate = `${convertedDate.getMonth() +1}/${convertedDate.getDate()}/${convertedDate.getFullYear()}`;
@@ -43,7 +73,6 @@ function formatDate(date) {
 
 function handlePrevClick(data, iterator) {
     $('#modal-prev').click(() => {
-      console.log(iterator);
       if(iterator <= 0) {
         iterator = 0;
       } else {
@@ -114,7 +143,6 @@ function handleRemoveModal() {
 }
 
 function generateModal(data) {
-  console.log(data);
   const employeeCards = document.querySelectorAll('.card');
   for(let i = 0; i < data.length; i++){
     employeeCards[i].addEventListener('click', (e) => {
@@ -148,6 +176,7 @@ function generateModal(data) {
       handleNextClick(data, i);
       });
   }
+  return data;
 }
 
-getEmployees(randomUrl).then(generateHTML).then(generateModal);
+getEmployees(randomUrl).then(generateHTML).then(generateModal).then(generateSearch).then(handleSearch);
