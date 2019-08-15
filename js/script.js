@@ -61,8 +61,12 @@ function handleSearch(data) {
       if(fullName.includes(e.target.value.toLowerCase())) {
         // To ensure the no results message isn't displayed if there is a match
         $('#no-results').remove();
-        // :eq used to grab to corresponding card with it's postion in the index
-        $(`.card:eq(${index})`).show();
+        // fading animation to ease showing to users
+        $(`.card:eq(${index})`).fadeIn("fast", () => {
+          // :eq used to grab to corresponding card with it's postion in the index
+          $(`.card:eq(${index})`).show();
+        });
+
         // employee pushed into searchResults array for a check after loop is finished
         searchResults.push(employee);
       }
