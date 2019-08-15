@@ -15,3 +15,6 @@ A function that takes a data parameter. This generates and appends the search ba
 
 ## handleSearch(data)
 A function that takes a data parameter. This function adds functionality to the search bar that is created in generateSearch. A `keyup` event is added to the search bar. On `keyup` the function loops through the employee objects in   `data` and checks to see if the user inputted value matches any of the names of employees in the dataset. All employees that do not match are hidden. If no employees are shown, a message, letting the user know that no results are returned, is shown
+
+## formatDate(date)
+A function that takes a date parameter. This function is used in `generateModal` to convert a iso formatted date to a short date format to make it look more appealing for the user when they view the birthday on the modal
